@@ -1,27 +1,134 @@
+<!-- 
+[ ] Show the user new tweets. (You can show them automatically as they're created, or create a button that displays new tweets.)
+[ ] Display the timestamps of when the tweets were created.
+[ ] Allow the user to click on a username to see that user's timeline.
+[ ] Make it pretty.
+[ ] Host on github pages.
+ -->
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Twittler0</title>
+    <link rel="stylesheet" href="main.css">
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
-  </head>
-  <body>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="container">
+        <h1>
+Twittler
+    </h1>
+        <buttons>
+            <!-- New Tweets button -->
+            <button>
+                <div id="newtweets">Refresh Tweets</div>
+            </button>
+            <!-- Auto-load Tweets. Needs functionality. -->
+            <button>
+                <div id="autoload">Auto-Load Tweets</div>
+            </button>
+        </buttons>
+    </header>
+    <!-- Tweets -->
+    <section class="bigcontainer">
+    </section>
     <script>
+    var myAlert = function(input) {
+        alert(input);
+    };
 
-      $(document).ready(function(){
+    var myWord = "my word";
+    
+    // not yet added
+
+    $(document).ready(function() {
         var $body = $('body');
-        $body.html('');
+        var index = 0;
+        var firstTime = true;
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
+        // Passes clicked username to userLoad function
+        var showUsers = function() {
+            $('.bigcontainer').on('click', 'a', function() {
+                var searchTerm = ($(this).attr('class'));
+                console.log("Searching: " + searchTerm);
+                userLoad(searchTerm);
+            });
         }
 
-      });
+        // Display full tweet history:
+        var tweetLoad = function() {
+            firstTime = true;
+            // if beyond first loading, prepend a line separator
+            // (index) && ($('.bigcontainer').prepend("<hr>"))
+            for (var i = index; i < streams.home.length; i++) {
+                var tweet = streams.home[index];
+                var $tweet = $('<div class="tweets"></div>');
+                console.log("tweetLoad, prepending: " + tweet.user);
+                $tweet.append('<a class="' + tweet.user + '"><b>@' + tweet.user + '</b></a>' + "<br><a class=timestamp>" + String(new Date()).slice(16, 24) + "</a><br>" + tweet.message);
+                $tweet.prependTo('.bigcontainer');
+                index += 1;
+            }
+            // on username click, call userLoad.
+            // $('.uname').on('click', function() {
+            //     userLoad('mracus');
+            // });
 
+            // on username click, show username tweets.
+            showUsers();
+
+        }
+
+        var userdex = 0;
+
+        // Display tweet history of specific user:
+        var userLoad = function(searchTerm) {
+            // console.log(someUser+"WOOOOH")
+            if (firstTime === true) {
+                firstTime = false;
+                $('.bigcontainer').html(" ");
+            }
+
+            // count from last index (userdex) to end of streams.home
+            for (var i = userdex; i < streams.home.length; i++) {
+                var tweet = streams.home[userdex];
+                var $tweet = $('<div class="tweets"></div>');
+
+                // if searchterm matches, 
+                if (tweet.user === searchTerm) {
+                    console.log("userLoad, prepending good: " + tweet.user);
+                    $tweet.append('<a class="' + tweet.user + '">@' + tweet.user + '</a>' + " · " + String(new Date()).slice(16, 24) + "<br>" + tweet.message);
+                    $tweet.prependTo('.bigcontainer');
+
+                } else {
+                    console.log("userLoad, not appending bad: " + tweet.user);
+                }
+                userdex += 1;
+
+            }
+
+            // on username click, show username tweets. Need to change this so 'clearInterval' works for stopping auto-load of tweets.
+            showUsers();
+        }
+
+        // Button Functions:
+
+        // on New Tweets click, call 'tweetLoad()'
+        $('#newtweets').click(function() {
+            tweetLoad();
+        });
+
+        // on Auto-Load click, execute tweetLoad every 4 seconds
+        $('#autoload').click(function() {
+            tweetLoad();
+            setInterval(tweetLoad, 1000);
+        });
+
+    });
     </script>
-  </body>
+</body>
+
 </html>
